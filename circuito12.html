@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Circuito Serie R1=2, R2=4, R3=6, V=15</title>
+    <style>
+         body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Centra horizontalmente */
+            min-height: 100vh; /* Asegura que el contenido ocupe al menos toda la altura de la ventana */
+            margin: 0;
+            padding: 20px; /* Añade un poco de espacio alrededor */
+            box-sizing: border-box; /* Incluye el padding en el ancho total del elemento */
+        }
+
+        .circuit-container {
+            width: 80%;
+            max-width: 800px; /* Para que no se vea muy grande en pantallas anchas */
+            margin: 20px auto; /* Centra el contenedor */
+            border: 1px solid #ddd; /* Un borde sutil */
+            padding: 20px;
+            box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
+        }
+
+        .svg-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 20px; /* Espacio antes de la tabla */
+        }
+
+        /* Estilos para la tabla */
+        .calculation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .calculation-table th,
+        .calculation-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .calculation-table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        /* Estilos para mostrar los cálculos */
+        #calculationSteps {
+            margin-top: 20px;
+            text-align: left;
+            border: 1px dashed #ccc; /* Un borde punteado para que se note */
+            padding: 10px;
+            background-color: #f9f9f9; /* Un fondo muy claro */
+        }
+
+        .highlight {
+            background-color: yellow;
+        }
+
+        .green-bg {
+            background-color: #90EE90 !important; /* Verde claro */
+        }
+
+        #summaryModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border: 2px solid #4CAF50;
+            z-index: 1000;
+            max-width: 80%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+         /*Estilos para los valores en el SVG*/
+        .svg-value {
+            position: absolute;
+            font-size: 14px;
+            font-weight: bold;
+            fill: #333; /* Color del texto */
+        }
+    </style>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+    <div class="circuit-container">
+        <h1>Circuito Serie: Resistencias y Cálculos</h1>
+
+        <!-- SVG para el circuito -->
+        <div class="svg-container">
+            <svg width="600" height="200">
+                <!-- Batería (V = 15V) -->
+                <line x1="50" y1="100" x2="150" y2="100" stroke="black" stroke-width="3" />
+                <line x1="50" y1="80" x2="50" y2="120" stroke="black" stroke-width="3" />
+                <line x1="30" y1="90" x2="70" y2="90" stroke="black" stroke-width="2" />
+                <line x1="30" y1="110" x2="70" y2="110" stroke="black" stroke-width="4" />
+                <text x="10" y="110" font-size="16">+</text>
+                <text x="100" y="70" font-size="16">V = 15V</text>
+
+                <!-- R1 -->
+                <line x1="150" y1="100" x2="250" y2="100" stroke="black" stroke-width="3" />
+                <rect x="220" y="75" width="60" height="50" fill="white" stroke="black" stroke-width="2" />
+                <text x="230" y="105" font-size="16">R1</text>
+                <text x="235" y="135" class="svg-value">2Ω</text>
+
+                <!-- R2 -->
+                <line x1="280" y1="100" x2="380" y2="100" stroke="black" stroke-width="3" />
+                <rect x="350" y="75" width="60" height="50" fill="white" stroke="black" stroke-width="2" />
+                <text x="360" y="105" font-size="16">R2</text>
+                 <text x="365" y="135" class="svg-value">4Ω</text>
+
+                <!-- R3 -->
+                <line x1="410" y1="100" x2="510" y2="100" stroke="black" stroke-width="3" />
+                <rect x="480" y="75" width="60" height="50" fill="white" stroke="black" stroke-width="2" />
+                <text x="490" y="105" font-size="16">R3</text>
+                 <text x="495" y="135" class="svg-value">6Ω</text>
+
+                <!-- Cierre del circuito -->
+                <line x1="540" y1="100" x2="550" y2="100" stroke="black" stroke-width="3" />
+                <line x1="550" y1="100" x2="550" y2="120" stroke="black" stroke-width="3" />
+                <line x1="550" y1="120" x2="50" y2="120" stroke="black" stroke-width="3" />
+                <line x1="50" y1="120" x2="50" y2="100" stroke="black" stroke-width="3" />
+            </svg>
+        </div>
+
+        <h2>Tabla de Cálculos</h2>
+        <table class="calculation-table">
+            <thead>
+                <tr>
+                    <th>Componente</th>
+                    <th>Voltaje (V)</th>
+                    <th>Corriente (A)</th>
+                    <th>Resistencia (Ω)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>R1</th>
+                    <td id="r1Voltage"></td>
+                    <td id="r1Current"></td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <th>R2</th>
+                    <td id="r2Voltage"></td>
+                    <td id="r2Current"></td>
+                    <td>4</td>
+                </tr>
+                <tr>
+                    <th>R3</th>
+                    <td id="r3Voltage"></td>
+                    <td id="r3Current"></td>
+                    <td>6</td>
+                </tr>
+                <tr>
+                    <th>Total</th>
+                    <td id="rTotalVoltage"></td>
+                    <td id="rTotalCurrent"></td>
+                    <td id="rTotalResistance"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div id="calculationSteps">
+            Aquí se mostrarán los cálculos paso a paso.
+        </div>
+    </div>
+
+    <!-- Botón para el resumen -->
+    <button id="summaryButton" style="margin-top: 20px;">Mostrar Resumen</button>
+
+    <!-- Modal para el resumen -->
+    <div id="summaryModal">
+        <div id="summaryContent"></div>
+        <button onclick="document.getElementById('summaryModal').style.display = 'none'">Cerrar</button>
+    </div>
+
+    <script>
+        // Datos del circuito (¡OJO! ¡Son constantes!)
+        const V = 15; // Voltaje total en voltios
+        const R1 = 2; // Resistencia 1 en ohmios
+        const R2 = 4; // Resistencia 2 en ohmios
+        const R3 = 6; // Resistencia 3 en ohmios
+
+        // Variables para los cálculos
+        let RTotal, ITotal, V1, V2, V3;
+
+        // Elementos del DOM (¡Importante! ¡Conexión con el HTML!)
+        const r1VoltageCell = document.getElementById('r1Voltage');
+        const r2VoltageCell = document.getElementById('r2Voltage');
+        const r3VoltageCell = document.getElementById('r3Voltage');
+        const r1CurrentCell = document.getElementById('r1Current');
+        const r2CurrentCell = document.getElementById('r2Current');
+        const r3CurrentCell = document.getElementById('r3Current');
+        const rTotalVoltageCell = document.getElementById('rTotalVoltage');
+        const rTotalCurrentCell = document.getElementById('rTotalCurrent');
+        const rTotalResistanceCell = document.getElementById('rTotalResistance');
+        const calculationStepsDiv = document.getElementById('calculationSteps');
+
+        let step = 0; //Controla el paso actual
+        let calculationHistory = [];
+
+        // Función de formato de números (¡Útil para la presentación!)
+        function formatNumber(n) {
+            return Number.isInteger(n) ? n.toString() : n.toFixed(2);
+        }
+
+        // Función para calcular los valores del circuito (¡El corazón del programa!)
+        function calculateCircuit() {
+            RTotal = R1 + R2 + R3; // Resistencia total en serie
+            ITotal = V / RTotal; // Corriente total usando la ley de Ohm
+            V1 = ITotal * R1; // Voltaje en R1
+            V2 = ITotal * R2; // Voltaje en R2
+            V3 = ITotal * R3; // Voltaje en R3
+        }
+
+        // Función para resaltar celdas (¡Para guiar al usuario!)
+        function highlightCell(cell) {
+            document.querySelectorAll('.highlight').forEach(c => c.classList.remove('highlight'));
+            cell.classList.add('highlight');
+        }
+
+        // Event listener para el botón de resumen
+        document.getElementById('summaryButton').addEventListener('click', () => {
+            const summaryContent = document.getElementById('summaryContent');
+            summaryContent.innerHTML = `
+                <h3>Resumen de Cálculos</h3>
+                ${calculationHistory.join('<br>')}
+                <h4>Tabla Final</h4>
+                ${document.querySelector('.calculation-table').outerHTML}
+            `;
+            document.getElementById('summaryModal').style.display = 'block';
+            MathJax.typesetPromise();
+        });
+
+        // Asigna colores a las celdas de intensidad
+        function assignIntensityColors() {
+            ['r1Current', 'r2Current', 'r3Current', 'rTotalCurrent'].forEach(id => {
+                document.getElementById(id).classList.add('green-bg');
+            });
+        }
+        // **Eventos de clic en las celdas (¡Aquí se controla la secuencia!)**
+
+        // 1. Resistencia total
+        rTotalResistanceCell.addEventListener('click', function() {
+            if (step === 0) {
+                calculateCircuit();
+                rTotalResistanceCell.textContent = formatNumber(RTotal) + " Ω";
+
+                calculationStepsDiv.innerHTML = `
+                    <p>Calculando la resistencia total: </p>
+                    <p>\\[ R_{Total} = R_1 + R_2 + R_3 = ${R1} \\Omega + ${R2} \\Omega + ${R3} \\Omega = ${formatNumber(RTotal)} \\Omega \\]</p>
+                `;
+                calculationHistory.push("Cálculo de Resistencia Total:<br>" + calculationStepsDiv.innerHTML);
+                MathJax.typesetPromise(); //Procesa las ecuaciones
+                step++; //Avanza al siguiente paso
+                highlightCell(rTotalVoltageCell); //Resalta la siguiente celda
+            }
+        });
+
+        rTotalVoltageCell.addEventListener('click', function() {
+            if (step === 1) {
+                calculateCircuit();
+                rTotalVoltageCell.textContent = V.toFixed(2) + " V";
+                calculationStepsDiv.innerHTML = `
+                    <p>El voltaje total es: </p>
+                    <p>\\[ V = ${V} V \\]</p>
+                `;
+                calculationHistory.push("Voltaje Total:<br>" + calculationStepsDiv.innerHTML);
+                MathJax.typesetPromise();
+                step++;
+                highlightCell(rTotalCurrentCell);
+            }
+        });
+        // 2. Corriente total
+        rTotalCurrentCell.addEventListener('click', function() {
+            if (step === 2) {
+                calculateCircuit();
+                rTotalCurrentCell.textContent = formatNumber(ITotal) + " A";
+                r1CurrentCell.textContent = formatNumber(ITotal) + " A";
+                r2CurrentCell.textContent = formatNumber(ITotal) + " A";
+                r3CurrentCell.textContent = formatNumber(ITotal) + " A";
+                assignIntensityColors();
+                calculationStepsDiv.innerHTML = `
+                    <p>Calculando la corriente total: </p>
+                    <p>\\[ I = \\frac{V}{R_{Total}} = \\frac{${V} V}{${formatNumber(RTotal)} \\Omega} = ${formatNumber(ITotal)} A \\]</p>
+                    <p>En un circuito en serie, la corriente es la misma en todos los componentes.</p>
+                `;
+                calculationHistory.push("Cálculo de Corriente Total:<br>" + calculationStepsDiv.innerHTML);
+                MathJax.typesetPromise();
+                step++;
+                highlightCell(r1VoltageCell);
+            }
+        });
+
+        // 3. Voltaje en R1
+        r1VoltageCell.addEventListener('click', function() {
+            if (step === 3) {
+                calculateCircuit();
+                r1VoltageCell.textContent = formatNumber(V1) + " V";
+                calculationStepsDiv.innerHTML = `
+                    <p>Calculando el voltaje en R1: </p>
+                    <p>\\[ V_1 = I \\cdot R_1 = ${formatNumber(ITotal)} A \\cdot ${R1} \\Omega = ${formatNumber(V1)} V \\]</p>
+                `;
+                calculationHistory.push("Cálculo de Voltaje en R1:<br>" + calculationStepsDiv.innerHTML);
+                MathJax.typesetPromise();
+                step++;
+                highlightCell(r2VoltageCell);
+            }
+        });
+
+        // 4. Voltaje en R2
+        r2VoltageCell.addEventListener('click', function() {
+            if (step === 4) {
+                calculateCircuit();
+                r2VoltageCell.textContent = formatNumber(V2) + " V";
+                calculationStepsDiv.innerHTML = `
+                    <p>Calculando el voltaje en R2: </p>
+                    <p>\\[ V_2 = I \\cdot R_2 = ${formatNumber(ITotal)} A \\cdot ${R2} \\Omega = ${formatNumber(V2)} V \\]</p>
+                `;
+                calculationHistory.push("Cálculo de Voltaje en R2:<br>" + calculationStepsDiv.innerHTML);
+                MathJax.typesetPromise();
+                step++;
+                highlightCell(r3VoltageCell);
+            }
+        });
+
+        // 5. Voltaje en R3
+        r3VoltageCell.addEventListener('click', function() {
+            if (step === 5) {
+                calculateCircuit();
+                r3VoltageCell.textContent = formatNumber(V3) + " V";
+                calculationStepsDiv.innerHTML = `
+                    <p>Calculando el voltaje en R3: </p>
+                    <p>\\[ V_3 = I \\cdot R_3 = ${formatNumber(ITotal)} A \\cdot ${R3} \\Omega = ${formatNumber(V3)} V \\]</p>
+                    <p>El voltaje total es la suma de los voltajes en cada resistencia: V = V1 + V2 + V3</p>
+                `;
+                calculationHistory.push("Cálculo de Voltaje en R3:<br>" + calculationStepsDiv.innerHTML);
+                MathJax.typesetPromise();
+                step++;
+            }
+        });
+
+        // Función para inicializar el circuito (¡Preparando el escenario!)
+        function initialize() {
+            //Limpiar las celdas
+            rTotalResistanceCell.textContent = "";
+            rTotalVoltageCell.textContent = "";
+            rTotalCurrentCell.textContent = "";
+            r1VoltageCell.textContent = "";
+            r2VoltageCell.textContent = "";
+            r3VoltageCell.textContent = "";
+
+            // Empezar resaltando la celda para el cálculo de la resistencia total
+            highlightCell(rTotalResistanceCell);
+        }
+
+        // ¡Empezamos!
+        initialize();
+    </script>
+</body>
+</html>

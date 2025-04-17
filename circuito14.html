@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Circuito Paralelo: 4Ω, 6Ω, 12Ω, 30V</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+        }
+        .circuit-container {
+            background: #fff;
+            margin: 30px auto;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 700px;
+            box-shadow: 0 2px 8px #bbb;
+        }
+        .svg-container {
+            margin-bottom: 20px;
+        }
+        .calculation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .calculation-table th,
+        .calculation-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        .calculation-table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+        .green-bg {
+            background-color: #90EE90 !important;
+        }
+        #calculationSteps {
+            margin-top: 20px;
+            text-align: left;
+            background: #f9f9f9;
+            border: 1px dashed #ccc;
+            padding: 10px;
+        }
+        #summaryModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border: 2px solid #4CAF50;
+            z-index: 1000;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+    </style>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div class="circuit-container">
+    <h1>Circuito Paralelo: 4Ω, 6Ω, 12Ω, 30V</h1>
+    <!-- Dibujo del circuito en paralelo -->
+    <div class="svg-container">
+        <svg width="600" height="220">
+            <!-- Batería -->
+            <line x1="50" y1="110" x2="120" y2="110" stroke="black" stroke-width="3"/>
+            <line x1="50" y1="90" x2="50" y2="130" stroke="black" stroke-width="3"/>
+            <line x1="30" y1="100" x2="70" y2="100" stroke="black" stroke-width="2"/>
+            <line x1="30" y1="120" x2="70" y2="120" stroke="black" stroke-width="4"/>
+            <text x="10" y="120" font-size="16">+</text>
+            <text x="60" y="80" font-size="16">V = 30V</text>
+            <!-- Nodo izquierdo -->
+            <circle cx="120" cy="110" r="5" fill="black"/>
+            <!-- R1 -->
+            <line x1="120" y1="110" x2="220" y2="60" stroke="black" stroke-width="3"/>
+            <rect x="180" y="45" width="40" height="30" fill="white" stroke="black" stroke-width="2"/>
+            <text x="185" y="65" font-size="14">R1=4Ω</text>
+            <!-- R2 -->
+            <line x1="120" y1="110" x2="220" y2="110" stroke="black" stroke-width="3"/>
+            <rect x="180" y="95" width="40" height="30" fill="white" stroke="black" stroke-width="2"/>
+            <text x="185" y="115" font-size="14">R2=6Ω</text>
+            <!-- R3 -->
+            <line x1="120" y1="110" x2="220" y2="160" stroke="black" stroke-width="3"/>
+            <rect x="180" y="145" width="40" height="30" fill="white" stroke="black" stroke-width="2"/>
+            <text x="185" y="165" font-size="14">R3=12Ω</text>
+            <!-- Nodo derecho -->
+            <circle cx="220" cy="60" r="5" fill="black"/>
+            <circle cx="220" cy="110" r="5" fill="black"/>
+            <circle cx="220" cy="160" r="5" fill="black"/>
+            <!-- Unión derecha -->
+            <line x1="220" y1="60" x2="320" y2="110" stroke="black" stroke-width="3"/>
+            <line x1="220" y1="110" x2="320" y2="110" stroke="black" stroke-width="3"/>
+            <line x1="220" y1="160" x2="320" y2="110" stroke="black" stroke-width="3"/>
+            <circle cx="320" cy="110" r="5" fill="black"/>
+            <!-- Cierre del circuito -->
+            <line x1="320" y1="110" x2="550" y2="110" stroke="black" stroke-width="3"/>
+            <line x1="550" y1="110" x2="550" y2="150" stroke="black" stroke-width="3"/>
+            <line x1="550" y1="150" x2="50" y2="150" stroke="black" stroke-width="3"/>
+            <line x1="50" y1="150" x2="50" y2="110" stroke="black" stroke-width="3"/>
+        </svg>
+    </div>
+    <h2>Tabla de Cálculos</h2>
+    <table class="calculation-table">
+        <thead>
+            <tr>
+                <th>Resistencia</th>
+                <th>Voltaje (V)</th>
+                <th>Corriente (A)</th>
+                <th>Valor (Ω)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>R1</th>
+                <td id="r1Voltage"></td>
+                <td id="r1Current"></td>
+                <td>4</td>
+            </tr>
+            <tr>
+                <th>R2</th>
+                <td id="r2Voltage"></td>
+                <td id="r2Current"></td>
+                <td>6</td>
+            </tr>
+            <tr>
+                <th>R3</th>
+                <td id="r3Voltage"></td>
+                <td id="r3Current"></td>
+                <td>12</td>
+            </tr>
+            <tr>
+                <th>Total</th>
+                <td id="rTotalVoltage"></td>
+                <td id="rTotalCurrent"></td>
+                <td id="rTotalResistance"></td>
+            </tr>
+        </tbody>
+    </table>
+    <div id="calculationSteps">Haz clic en la celda resaltada para avanzar paso a paso.</div>
+</div>
+<button id="summaryButton" style="margin-top: 20px;">Mostrar Resumen</button>
+<div id="summaryModal">
+    <div id="summaryContent"></div>
+    <button onclick="document.getElementById('summaryModal').style.display = 'none'">Cerrar</button>
+</div>
+<script>
+    // Parámetros del circuito
+    const V = 30;
+    const R1 = 4;
+    const R2 = 6;
+    const R3 = 12;
+
+    // Variables de cálculo
+    let RTotal, I1, I2, I3, ITotal;
+    let step = 0;
+    let calculationHistory = [];
+
+    // Elementos de la tabla
+    const r1VoltageCell = document.getElementById('r1Voltage');
+    const r2VoltageCell = document.getElementById('r2Voltage');
+    const r3VoltageCell = document.getElementById('r3Voltage');
+    const r1CurrentCell = document.getElementById('r1Current');
+    const r2CurrentCell = document.getElementById('r2Current');
+    const r3CurrentCell = document.getElementById('r3Current');
+    const rTotalVoltageCell = document.getElementById('rTotalVoltage');
+    const rTotalCurrentCell = document.getElementById('rTotalCurrent');
+    const rTotalResistanceCell = document.getElementById('rTotalResistance');
+    const calculationStepsDiv = document.getElementById('calculationSteps');
+
+    // Formato de números
+    function formatNumber(n) {
+        return Number.isInteger(n) ? n.toString() : n.toFixed(2);
+    }
+
+    // Cálculos principales
+    function calculateCircuit() {
+        // Resistencia total en paralelo
+        RTotal = 1 / (1 / R1 + 1 / R2 + 1 / R3);
+        // Corrientes por cada rama
+        I1 = V / R1;
+        I2 = V / R2;
+        I3 = V / R3;
+        // Corriente total
+        ITotal = I1 + I2 + I3;
+    }
+
+    // Resalta la celda activa
+    function highlightCell(cell) {
+        document.querySelectorAll('.highlight').forEach(c => c.classList.remove('highlight'));
+        if (cell) cell.classList.add('highlight');
+    }
+
+    // Colorea las celdas de voltaje en paralelo (todas iguales)
+    function assignVoltageColors() {
+        [r1VoltageCell, r2VoltageCell, r3VoltageCell, rTotalVoltageCell].forEach(cell => {
+            cell.classList.add('green-bg');
+        });
+    }
+
+    // Secuencia de pasos
+    rTotalResistanceCell.addEventListener('click', function() {
+        if (step === 0) {
+            calculateCircuit();
+            rTotalResistanceCell.textContent = formatNumber(RTotal) + " Ω";
+            calculationStepsDiv.innerHTML = `
+                <p>Resistencia total en paralelo:</p>
+                <p>\\[ \\frac{1}{R_{Total}} = \\frac{1}{4} + \\frac{1}{6} + \\frac{1}{12} = \\frac{1}{4} + \\frac{1}{6} + \\frac{1}{12} = \\frac{1}{2} \\]</p>
+                <p>\\[ R_{Total} = 2\\ \\Omega \\]</p>
+            `;
+            calculationHistory.push("Cálculo de resistencia total:<br>" + calculationStepsDiv.innerHTML);
+            MathJax.typesetPromise();
+            step++;
+            highlightCell(rTotalVoltageCell);
+        }
+    });
+
+    rTotalVoltageCell.addEventListener('click', function() {
+        if (step === 1) {
+            rTotalVoltageCell.textContent = formatNumber(V) + " V";
+            r1VoltageCell.textContent = formatNumber(V) + " V";
+            r2VoltageCell.textContent = formatNumber(V) + " V";
+            r3VoltageCell.textContent = formatNumber(V) + " V";
+            assignVoltageColors();
+            calculationStepsDiv.innerHTML = `
+                <p>El voltaje es el mismo en todas las ramas de un paralelo:</p>
+                <p>\\[ V_{Total} = V_{R1} = V_{R2} = V_{R3} = 30\\ V \\]</p>
+            `;
+            calculationHistory.push("Voltaje en paralelo:<br>" + calculationStepsDiv.innerHTML);
+            MathJax.typesetPromise();
+            step++;
+            highlightCell(r1CurrentCell);
+        }
+    });
+
+    r1CurrentCell.addEventListener('click', function() {
+        if (step === 2) {
+            calculateCircuit();
+            r1CurrentCell.textContent = formatNumber(I1) + " A";
+            calculationStepsDiv.innerHTML = `
+                <p>Corriente por R1:</p>
+                <p>\\[ I_1 = \\frac{V}{R_1} = \\frac{30}{4} = 7.5\\ A \\]</p>
+            `;
+            calculationHistory.push("Corriente por R1:<br>" + calculationStepsDiv.innerHTML);
+            MathJax.typesetPromise();
+            step++;
+            highlightCell(r2CurrentCell);
+        }
+    });
+
+    r2CurrentCell.addEventListener('click', function() {
+        if (step === 3) {
+            calculateCircuit();
+            r2CurrentCell.textContent = formatNumber(I2) + " A";
+            calculationStepsDiv.innerHTML = `
+                <p>Corriente por R2:</p>
+                <p>\\[ I_2 = \\frac{V}{R_2} = \\frac{30}{6} = 5\\ A \\]</p>
+            `;
+            calculationHistory.push("Corriente por R2:<br>" + calculationStepsDiv.innerHTML);
+            MathJax.typesetPromise();
+            step++;
+            highlightCell(r3CurrentCell);
+        }
+    });
+
+    r3CurrentCell.addEventListener('click', function() {
+        if (step === 4) {
+            calculateCircuit();
+            r3CurrentCell.textContent = formatNumber(I3) + " A";
+            calculationStepsDiv.innerHTML = `
+                <p>Corriente por R3:</p>
+                <p>\\[ I_3 = \\frac{V}{R_3} = \\frac{30}{12} = 2.5\\ A \\]</p>
+            `;
+            calculationHistory.push("Corriente por R3:<br>" + calculationStepsDiv.innerHTML);
+            MathJax.typesetPromise();
+            step++;
+            highlightCell(rTotalCurrentCell);
+        }
+    });
+
+    rTotalCurrentCell.addEventListener('click', function() {
+        if (step === 5) {
+            calculateCircuit();
+            rTotalCurrentCell.textContent = formatNumber(ITotal) + " A";
+            calculationStepsDiv.innerHTML = `
+                <p>Corriente total:</p>
+                <p>\\[ I_{Total} = I_1 + I_2 + I_3 = 7.5 + 5 + 2.5 = 15\\ A \\]</p>
+                <p>En un paralelo, la corriente total es la suma de las corrientes de cada rama.</p>
+            `;
+            calculationHistory.push("Corriente total:<br>" + calculationStepsDiv.innerHTML);
+            MathJax.typesetPromise();
+            step++;
+        }
+    });
+
+    // Resumen
+    document.getElementById('summaryButton').addEventListener('click', () => {
+        const summaryContent = document.getElementById('summaryContent');
+        summaryContent.innerHTML = `
+            <h3>Resumen de Cálculos</h3>
+            ${calculationHistory.join('<br>')}
+            <h4>Tabla Final</h4>
+            ${document.querySelector('.calculation-table').outerHTML}
+        `;
+        document.getElementById('summaryModal').style.display = 'block';
+        MathJax.typesetPromise();
+    });
+
+    // Inicialización
+    function initialize() {
+        r1VoltageCell.textContent = "";
+        r2VoltageCell.textContent = "";
+        r3VoltageCell.textContent = "";
+        r1CurrentCell.textContent = "";
+        r2CurrentCell.textContent = "";
+        r3CurrentCell.textContent = "";
+        rTotalVoltageCell.textContent = "";
+        rTotalCurrentCell.textContent = "";
+        rTotalResistanceCell.textContent = "";
+        document.querySelectorAll('.highlight, .green-bg').forEach(c => c.classList.remove('highlight', 'green-bg'));
+        calculationStepsDiv.innerHTML = "Haz clic en la celda resaltada para avanzar paso a paso.";
+        step = 0;
+        calculationHistory = [];
+        highlightCell(rTotalResistanceCell);
+    }
+
+    initialize();
+</script>
+</body>
+</html>

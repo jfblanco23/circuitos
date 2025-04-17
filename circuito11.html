@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Circuitos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Contenedores principales */
+        .left-panel {
+            width: 50%;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .right-panel {
+            width: 50%;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        /* Estilos para SVG y Inputs */
+        .svg-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .input-svg {
+            position: absolute;
+            width: 50px;
+            border: 1px solid #ccc;
+            background: white;
+            text-align: center;
+            font-size: 16px;
+            padding: 3px;
+            border-radius: 4px;
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        .input-svg::-webkit-outer-spin-button,
+        .input-svg::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Estilos para la tabla */
+        .calculation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .calculation-table th,
+        .calculation-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .calculation-table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .calculation-table td {
+            cursor: pointer; /* Añadido cursor pointer */
+        }
+
+        .highlight {
+            background-color: yellow;
+        }
+
+        /* Estilos para mostrar los cálculos */
+        #calculationSteps {
+            margin-top: 20px;
+            text-align: left;
+        }
+            .green-bg { background-color: #90EE90 !important; }
+        .red-bg { background-color: #FFB6C1 !important; }
+        #summaryModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border: 2px solid #4CAF50;
+            z-index: 1000;
+            max-width: 80%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+    </style>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+    <!-- Panel Izquierdo: Circuitos -->
+    <div class="left-panel">
+        <h1>Circuitos</h1>
+
+        <!-- Circuito original -->
+        <div class="svg-container" style="width:780px; height:455px;">
+            <svg width="780" height="455">
+                <!-- Batería (V1) -->
+                <line x1="104" y1="195" x2="200" y2="195" stroke="black" stroke-width="3" />
+                <line x1="104" y1="175.5" x2="104" y2="214.5" stroke="black" stroke-width="3" />
+                <line x1="84.5" y1="185.25" x2="123.5" y2="185.25" stroke="black" stroke-width="2" />
+                <line x1="84.5" y1="204.75" x2="123.5" y2="204.75" stroke="black" stroke-width="4" />
+                <text x="58.5" y="204.75" font-size="18">+</text>
+
+                <!-- R1 -->
+                <line x1="200" y1="195" x2="250" y2="195" stroke="black" stroke-width="3" />
+                <rect x="250" y="169" width="52" height="26" fill="white" stroke="black" stroke-width="2" />
+
+                <line x1="302" y1="195" x2="350" y2="195" stroke="black" stroke-width="3" />
+                <circle cx="350" cy="195" r="6.5" fill="black" />
+
+                <!-- R2 y R3 -->
+                <g id="r2r3Group" class="r23-box">
+                    <line x1="350" y1="195" x2="350" y2="104" stroke="black" stroke-width="3" />
+                    <line x1="350" y1="104" x2="480" y2="104" stroke="black" stroke-width="3" />
+                    <rect x="430" y="78" width="52" height="26" fill="white" stroke="black" stroke-width="2" />
+                    <line x1="480" y1="104" x2="480" y2="195" stroke="black" stroke-width="3" />
+                    <line x1="350" y1="195" x2="350" y2="286" stroke="black" stroke-width="3" />
+                    <line x1="350" y1="286" x2="480" y2="286" stroke="black" stroke-width="3" />
+                    <rect x="430" y="260" width="52" height="26" fill="white" stroke="black" stroke-width="2" />
+                    <line x1="480" y1="286" x2="480" y2="195" stroke="black" stroke-width="3" />
+
+                    <rect x="350" y="78" width="130" height="208" fill="transparent" stroke="none" />
+                </g>
+
+                <circle cx="480" cy="195" r="6.5" fill="black" />
+
+                <line x1="480" y1="195" x2="676" y2="195" stroke="black" stroke-width="3" />
+                <line x1="676" y1="195" x2="676" y2="325" stroke="black" stroke-width="3" />
+                <line x1="676" y1="325" x2="104" y2="325" stroke="black" stroke-width="3" />
+                <line x1="104" y1="325" x2="104" y2="195" stroke="black" stroke-width="3" />
+            </svg>
+
+            <input type="number" id="v1" class="input-svg" style="top: 180px; left: 123.5px;" value="12">
+            <input type="number" id="r1" class="input-svg" style="top: 180px; left: 300px;" value="1000">
+            <input type="number" id="r2" class="input-svg" style="top: 78px; left: 430px;" value="2000">
+            <input type="number" id="r3" class="input-svg" style="top: 260px; left: 430px;" value="3000">
+             <div style="position:absolute; top:195px; left:127px; font-size:14px;">V1</div>
+            <div style="position:absolute; top:195px; left:303px; font-size:14px;">R1</div>
+            <div style="position:absolute; top:104px; left:433px; font-size:14px;">R2</div>
+            <div style="position:absolute; top:286px; left:433px; font-size:14px;">R3</div>
+        </div>
+
+        <!-- Circuito equivalente (R1 y R23) -->
+        <h2>Circuito Equivalente (R1 + R23)</h2>
+        <div class="svg-container" style="width:780px; height:250px;">
+            <svg width="780" height="250">
+                <!-- Batería (V1) -->
+                <line x1="104" y1="125" x2="200" y2="125" stroke="black" stroke-width="3" />
+                <line x1="104" y1="105.5" x2="104" y2="144.5" stroke="black" stroke-width="3" />
+                <line x1="84.5" y1="115.25" x2="123.5" y2="115.25" stroke="black" stroke-width="2" />
+                <line x1="84.5" y1="134.75" x2="123.5" y2="134.75" stroke="black" stroke-width="4" />
+                <text x="58.5" y="134.75" font-size="18">+</text>
+
+                <!-- R1 -->
+                <line x1="200" y1="125" x2="350" y2="125" stroke="black" stroke-width="3" />
+                <rect x="300" y="99" width="52" height="26" fill="white" stroke="black" stroke-width="2" />
+                <text id="r1Value" x="310" y="117" font-size="14"></text>... <!-- R23 -->
+                <line x1="350" y1="125" x2="500" y2="125" stroke="black" stroke-width="3" />
+                <rect x="450" y="99" width="52" height="26" fill="white" stroke="black" stroke-width="2" />
+                <text id="r23Value" x="460" y="117" font-size="14"></text>
+
+                <!-- Cierre del circuito -->
+                <line x1="500" y1="125" x2="676" y2="125" stroke="black" stroke-width="3" />
+                <line x1="676" y1="125" x2="676" y2="195" stroke="black" stroke-width="3" />
+                <line x1="676" y1="195" x2="104" y2="195" stroke="black" stroke-width="3" />
+                <line x1="104" y1="195" x2="104" y2="125" stroke="black" stroke-width="3" />
+            </svg>
+            <div style="position:absolute; top:115px; left:127px; font-size:14px;">V1</div>
+        </div>
+
+        <!-- Circuito equivalente final (RTotal) -->
+        <h2>Circuito Equivalente Final (RTotal)</h2>
+        <div class="svg-container" style="width:780px; height:250px;">
+            <svg width="780" height="250">
+                <!-- Batería (V1) -->
+                <line x1="104" y1="125" x2="200" y2="125" stroke="black" stroke-width="3" />
+                <line x1="104" y1="105.5" x2="104" y2="144.5" stroke="black" stroke-width="3" />
+                <line x1="84.5" y1="115.25" x2="123.5" y2="115.25" stroke="black" stroke-width="2" />
+                <line x1="84.5" y1="134.75" x2="123.5" y2="134.75" stroke="black" stroke-width="4" />
+                <text x="58.5" y="134.75" font-size="18">+</text>
+
+                <!-- RTotal -->
+                <line x1="200" y1="125" x2="350" y2="125" stroke="black" stroke-width="3" />
+                <rect x="300" y="99" width="52" height="26" fill="white" stroke="black" stroke-width="2" />
+                <text id="rTotalValue" x="310" y="117" font-size="14"></text>
+
+                <!-- Cierre del circuito -->
+                <line x1="350" y1="125" x2="676" y2="125" stroke="black" stroke-width="3" />
+                <line x1="676" y1="125" x2="676" y2="195" stroke="black" stroke-width="3" />
+                <line x1="676" y1="195" x2="104" y2="195" stroke="black" stroke-width="3" />
+                <line x1="104" y1="195" x2="104" y2="125" stroke="black" stroke-width="3" />
+            </svg>
+            <div style="position:absolute; top:115px; left:127px; font-size:14px;">V1</div>
+        </div>
+    </div>
+
+    <!-- Panel Derecho: Tabla y Cálculos -->
+    <div class="right-panel">
+        <h2>Tabla de Cálculos</h2>
+        <table class="calculation-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>V (Voltios)</th>
+                    <th>I (Amperios)</th>
+                    <th>R (Ohmios)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>R1</th>
+                    <td id="r1Voltage"></td>
+                    <td id="r1Current"></td>
+                    <td id="r1Resistance"></td>
+                </tr>
+                <tr>
+                    <th>R2</th>
+                    <td id="r2Voltage"></td>
+                    <td id="r2Current"></td>
+                    <td id="r2Resistance"></td>
+                </tr>
+                <tr>
+                    <th>R3</th>
+                    <td id="r3Voltage"></td>
+                    <td id="r3Current"></td>
+                    <td id="r3Resistance"></td>
+                </tr>
+                <tr>
+                    <th>R23</th>
+                    <td id="r23Voltage"></td>
+                    <td id="r23Current"></td>
+                    <td id="r23Resistance"></td>
+                </tr>
+                <tr>
+                    <th>RTotal</th>
+                    <td id="rTotalVoltage"></td>
+                    <td id="rTotalCurrent"></td>
+                    <td id="rTotalResistance"></td>
+                </tr>
+            </tbody>
+        </table>
+        <div id="calculationSteps"></div>
+    </div>
+    <button id="summaryButton" style="position: fixed; bottom: 20px; right: 20px;">Mostrar Resumen</button>
+    <div id="summaryModal">
+        <div id="summaryContent"></div>
+        <button onclick="document.getElementById('summaryModal').style.display = 'none'">Cerrar</button>
+    </div>
+
+    <script>
+         // Elementos del DOM
+        const v1Input = document.getElementById('v1');
+        const r1Input = document.getElementById('r1');
+        const r2Input = document.getElementById('r2');
+        const r3Input = document.getElementById('r3');
+
+        const r1ResistanceCell = document.getElementById('r1Resistance');
+        const r2ResistanceCell = document.getElementById('r2Resistance');
+        const r3ResistanceCell = document.getElementById('r3Resistance');
+        const rTotalResistanceCell = document.getElementById('rTotalResistance');
+        const r23ResistanceCell = document.getElementById('r23Resistance');
+
+        const rTotalVoltageCell = document.getElementById('rTotalVoltage');
+        const rTotalCurrentCell = document.getElementById('rTotalCurrent');
+        const r1CurrentCell = document.getElementById('r1Current');
+        const r23CurrentCell = document.getElementById('r23Current');
+        const r1VoltageCell = document.getElementById('r1Voltage');
+        const r23VoltageCell = document.getElementById('r23Voltage');
+        const r2VoltageCell = document.getElementById('r2Voltage');
+        const r3VoltageCell = document.getElementById('r3Voltage');
+        const r2CurrentCell = document.getElementById('r2Current');
+        const r3CurrentCell = document.getElementById('r3Current');
+        const r1ValueText = document.querySelector('#r1Value');
+        const r23ValueText = document.querySelector('#r23Value');
+        const rTotalValueText = document.querySelector('#rTotalValue');
+
+        const calculationStepsDiv = document.getElementById('calculationSteps');
+
+        let V1, R1, R2, R3, R23, RTotal, ITotal, V1Voltage, V23Voltage, I2, I3;
+        let step = 0; // Paso actual
+
+        // Funciones de cálculo
+        function calculateAll() {
+            V1 = parseFloat(v1Input.value);
+            R1 = parseFloat(r1Input.value);
+            R2 = parseFloat(r2Input.value);
+            R3 = parseFloat(r3Input.value);
+
+            R23 = (R2 * R3) / (R2 + R3);
+            RTotal = R1 + R23;
+            ITotal = V1 / RTotal;
+
+            V1Voltage = ITotal * R1;
+            V23Voltage = ITotal * R23;
+
+            I2 = V23Voltage / R2;
+            I3 = V23Voltage / R3;
+        }
+           function updateEquivalentCircuit(r1, r23,rTotal) {
+            if (r1ValueText) {
+                r1ValueText.textContent = "R1 = " + r1.toFixed(2) + " Ω";
+            }
+             if (r23ValueText) {
+                r23ValueText.textContent = "R23 = " + r23.toFixed(2) + " Ω";
+            }
+            if (rTotalValueText) {
+                rTotalValueText.textContent = "RTotal = " + rTotal.toFixed(2) + " Ω";
+            }
+        }
+
+       function clearTable() {
+            r1ResistanceCell.textContent = "";
+            r2ResistanceCell.textContent = "";
+            r3ResistanceCell.textContent = "";
+            r23ResistanceCell.textContent = "";
+            rTotalResistanceCell.textContent = "";
+            rTotalVoltageCell.textContent = "";
+            r1CurrentCell.textContent = "";
+            r23CurrentCell.textContent = "";
+            r1VoltageCell.textContent = "";
+            r23VoltageCell.textContent = "";
+            r2VoltageCell.textContent = "";
+            r3VoltageCell.textContent = "";
+            r2CurrentCell.textContent = "";
+            r3CurrentCell.textContent = "";
+
+             r1ResistanceCell.classList.remove('highlight');
+            r2ResistanceCell.classList.remove('highlight');
+            r3ResistanceCell.classList.remove('highlight');
+            r23ResistanceCell.classList.remove('highlight');
+            rTotalResistanceCell.classList.remove('highlight');
+        }
+
+           function setInitialValues() {
+            calculateAll();
+            r1ResistanceCell.textContent = formatNumber(R1) + " Ω";
+            r2ResistanceCell.textContent = formatNumber(R2) + " Ω";
+            r3ResistanceCell.textContent = formatNumber(R3) + " Ω";
+
+             R1 = parseFloat(r1Input.value);
+            R2 = parseFloat(r2Input.value);
+            R3 = parseFloat(r3Input.value);
+
+             updateEquivalentCircuit(R1, R23,RTotal);
+               highlightCell(r23ResistanceCell);
+        }
+
+           function highlightCell(cell) {
+            cell.classList.add('highlight');
+        }
+
+        // Event listeners para los pasos
+         // Variables nuevas
+    let calculationHistory = [];
+    const stepsConfig = [
+        /* Paso 0 */ {cell: 'r23Resistance', action: 'Calcular R23'},
+        /* Paso 1 */ {cell: 'rTotalResistance', action: 'Calcular RTotal'},
+        /* Paso 2 */ {cell: 'rTotalVoltage', action: 'Voltaje Total'},
+        /* Paso 3 */ {cell: 'rTotalCurrent', action: 'Intensidad Total', color: 'green'},
+        /* Paso 4 */ {cell: 'r1Voltage', action: 'Voltaje R1'},
+        /* Paso 5 */ {cell: 'r23Voltage', action: 'Voltaje R23', color: 'red'},
+        /* Paso 6 */ {cell: 'r2Current', action: 'Intensidad R2'},
+        /* Paso 7 */ {cell: 'r3Current', action: 'Intensidad R3'}
+    ];
+
+    // Función de formato mejorada
+    function formatNumber(n) {
+        return Number.isInteger(n) ? n.toString() : n.toFixed(2);
+    }
+
+    // Función para avanzar pasos
+    function handleStep(stepNumber) {
+        const config = stepsConfig[stepNumber];
+        const cell = document.getElementById(config.cell);
+        
+        // Limpiar highlights anteriores
+        document.querySelectorAll('.highlight').forEach(c => c.classList.remove('highlight'));
+        
+        // Resaltar celda actual
+        cell.classList.add('highlight');
+        
+        // Aplicar colores según paso
+        if(config.color === 'green') {
+            ['r1Current', 'r23Current', 'rTotalCurrent'].forEach(id => {
+                document.getElementById(id).classList.add('green-bg');
+            });
+        }
+        if(config.color === 'red') {
+            ['r2Voltage', 'r3Voltage'].forEach(id => {
+                document.getElementById(id).classList.add('red-bg');
+            });
+        }
+    }
+
+    // Manejador del resumen
+    document.getElementById('summaryButton').addEventListener('click', () => {
+        const summaryContent = document.getElementById('summaryContent');
+        summaryContent.innerHTML = `
+            <h3>Resumen de Cálculos</h3>
+            ${calculationHistory.join('<br>')}
+            <h4>Tabla Final</h4>
+            ${document.querySelector('.calculation-table').outerHTML}
+        `;
+        document.getElementById('summaryModal').style.display = 'block';
+        MathJax.typesetPromise();
+    });
+
+    // Modificar el event listener existente
+    r23ResistanceCell.addEventListener('click', function() {
+        if (step === 0) {
+            calculateAll();
+             r23ResistanceCell.textContent = formatNumber(R23) + " Ω";
+             rTotalResistanceCell.textContent = formatNumber(RTotal) + " Ω";
+            calculationStepsDiv.innerHTML = `
+                <p>Calculando las resistencias: </p>
+                <p>\\[ R_{23} = \\frac{R_2 \\cdot R_3}{R_2 + R_3} = \\frac{${R2} \\cdot ${R3}}{${R2} + ${R3}} = ${formatNumber(R23)} \\Omega \\]</p>
+                <p>\\[ R_{Total} = R_1 + R_{23} = ${R1} + ${formatNumber(R23)} = ${formatNumber(RTotal)} \\Omega \\]</p>
+            `;
+            calculationHistory.push("Cálculo de R23:<br>" + calculationStepsDiv.innerHTML);
+             updateEquivalentCircuit(R1, R23,RTotal);
+             MathJax.typesetPromise();
+        }
+        
+        // Resto de la lógica de pasos...
+         step++;
+        handleStep(step);
+        
+        // Actualizar MathJax después de cada paso
+        MathJax.typesetPromise();
+    });
+    rTotalResistanceCell.addEventListener('click', function() {
+        if (step === 1) {
+            calculateAll();
+            calculationStepsDiv.innerHTML = `
+                 <p>\\[ R_{Total} = R_1 + R_{23} = ${R1} + ${formatNumber(R23)} = ${formatNumber(RTotal)} \\Omega \\]</p>
+            `;
+            calculationHistory.push("Cálculo de RTotal:<br>" + calculationStepsDiv.innerHTML);
+            MathJax.typesetPromise();
+           
+        }
+          step++;
+        handleStep(step);
+    });
+     rTotalVoltageCell.addEventListener('click', function() {
+        if (step === 2) {
+            calculateAll();
+             rTotalVoltageCell.textContent = formatNumber(V1) + " V";
+            calculationStepsDiv.innerHTML = `
+                <p>El voltaje total es: </p>
+                <p>\\[ V_{Total} = ${formatNumber(V1)} V \\]</p>
+            `;
+            calculationHistory.push("Cálculo de Voltaje Total:<br>" + calculationStepsDiv.innerHTML);
+            MathJax.typesetPromise();
+           
+        }
+         step++;
+        handleStep(step);
+    });
+     rTotalCurrentCell.addEventListener('click', function() {
+        if (step === 3) {
+            calculateAll();
+            rTotalCurrentCell.textContent = formatNumber(ITotal) + " A";
+            r1CurrentCell.textContent = formatNumber(ITotal) + " A";
+            r23CurrentCell.textContent = formatNumber(ITotal) + " A";
+            calculationStepsDiv.innerHTML = `
+                <p>Calculando la intensidad total: </p>
+                <p>\\[ I_{Total} = \\frac{V_{Total}}{R_{Total}} = \\frac{${formatNumber(V1)}}{${formatNumber(RTotal)}} = ${formatNumber(ITotal)} A \\]</p>
+                <p>Como R1 y R23 están en serie, la intensidad es la misma: </p>
+                <p>\\[ I_{R1} = I_{R23} = ${formatNumber(ITotal)} A \\]</p>
+            `;
+            calculationHistory.push("Cálculo de Intensidad Total:<br>" + calculationStepsDiv.innerHTML);
+            MathJax.typesetPromise();
+        }
+       step++;
+        handleStep(step);
+    });
+
+    r1VoltageCell.addEventListener('click', function() {
+        if (step === 4) {
+            calculateAll();
+             r1VoltageCell.textContent = formatNumber(V1Voltage) + " V";
+            calculationStepsDiv.innerHTML = `
+                <p>Calculando el voltaje en R1: </p>
+                <p>\\[ V_{R1} = I_{Total} \\cdot R_1 = ${formatNumber(ITotal)} \\cdot ${R1} = ${formatNumber(V1Voltage)} V \\]</p>
+            `;
+            calculationHistory.push("Cálculo de Voltaje en R1:<br>" + calculationStepsDiv.innerHTML);
+            MathJax.typesetPromise();
+        }
+         step++;
+        handleStep(step);
+    });
+
+    r23VoltageCell.addEventListener('click', function() {
+        if (step === 5) {
+            calculateAll();
+             r23VoltageCell.textContent = formatNumber(V23Voltage) + " V";
+             r2VoltageCell.textContent = formatNumber(V23Voltage) + " V";
+             r3VoltageCell.textContent = formatNumber(V23Voltage) + " V";
+            calculationStepsDiv.innerHTML = `
+                <p>Calculando el voltaje en R23: </p>
+                <p>\\[ V_{R23} = I_{Total} \\cdot R_{23} = ${formatNumber(ITotal)} \\cdot ${formatNumber(R23)} = ${formatNumber(V23Voltage)} V \\]</p>
+                <p>Como R2 y R3 están en paralelo, el voltaje es el mismo: </p>
+                <p>\\[ V_{R2} = V_{R3} = ${formatNumber(V23Voltage)} V \\]</p>
+            `;
+            calculationHistory.push("Cálculo de Voltaje en R23:<br>" + calculationStepsDiv.innerHTML);
+            MathJax.typesetPromise();
+        }
+        step++;
+        handleStep(step);
+    });
+     r2CurrentCell.addEventListener('click', function() {
+        if (step === 6) {
+            calculateAll();
+              r2CurrentCell.textContent = formatNumber(I2) + " A";
+            calculationStepsDiv.innerHTML = `
+                <p>Calculando la intensidad en R2: </p>
+                <p>\\[ I_{R2} = \\frac{V_{R2}}{R_2} = \\frac{${formatNumber(V23Voltage)}}{${R2}} = ${formatNumber(I2)} A \\]</p>
+            `;
+            calculationHistory.push("Cálculo de Intensidad en R2:<br>" + calculationStepsDiv.innerHTML);
+            MathJax.typesetPromise();
+        }
+         step++;
+        handleStep(step);
+    });
+
+    r3CurrentCell.addEventListener('click', function() {
+        if (step === 7) {
+            calculateAll();
+              r3CurrentCell.textContent = formatNumber(I3) + " A";
+            calculationStepsDiv.innerHTML = `
+                <p>Calculando la intensidad en R3: </p>
+                <p>\\[ I_{R3} = \\frac{V_{R3}}{R_3} = \\frac{${formatNumber(V23Voltage)}}{${R3}} = ${formatNumber(I3)} A \\]</p>
+            `;
+            calculationHistory.push("Cálculo de Intensidad en R3:<br>" + calculationStepsDiv.innerHTML);
+            MathJax.typesetPromise();
+        }
+         step++;
+        handleStep(step);
+    });
+
+
+    // Añadir esta línea al final de setInitialValues
+    calculationHistory = [];
+     [v1Input, r1Input, r2Input, r3Input].forEach(input => {
+        input.addEventListener('input', () => {
+            clearTable();
+            setInitialValues();
+            step = 0;
+        });
+    });
+
+    setInitialValues();
+</script>
+</body>
+</html>
